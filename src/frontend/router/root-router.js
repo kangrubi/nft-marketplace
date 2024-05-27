@@ -1,7 +1,8 @@
 import React from "react";
+import { createBrowserRouter } from "react-router-dom";
 import Home from "../components/Home";
 import App from "../components/App";
-import { createBrowserRouter } from "react-router-dom";
+import Create from "../components/Create";
 
 export const rootRouter = createBrowserRouter([
   {
@@ -11,6 +12,10 @@ export const rootRouter = createBrowserRouter([
       {
         path: "",
         element: <Home />,
+      },
+      {
+        path: "/Create",
+        element: <Create />,
       },
     ],
   },
