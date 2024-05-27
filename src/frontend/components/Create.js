@@ -9,6 +9,10 @@ const Create = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
+  const uploadToIPFS = async (event) => {
+    event.preventDefault();
+  };
+
   return (
     <div className="container-fluid mt-5">
       <div className="row"></div>
