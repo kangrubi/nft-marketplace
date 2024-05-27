@@ -13,29 +13,27 @@ const Home = () => {
   const loadMarketplaceItems = async () => {
     const itemCount = await marketplace.itemCount();
 
-    if (itemCount) {
-      for (let i = 1; i <= itemCount; i++) {
-        const item = await marketplace.items(i);
+    for (let i = 1; i <= itemCount; i++) {
+      const item = await marketplace.items(i);
 
-        if (!item.sold) {
-          const uri = await nft.tokenURI(item.tokenURI);
+      if (!item.sold) {
+        const uri = await nft.tokenURI(item.tokenURI);
 
-          const response = await axios.get(uri);
+        const response = await axios.get(uri);
 
-          if (response.data) {
-            const metadata = response.data;
+        if (response.data) {
+          const metadata = response.data;
 
-            const totalPrice = await marketplace.getTotalPrice(item.itemId);
+          const totalPrice = await marketplace.getTotalPrice(item.itemId);
 
-            setItems({
-              totalPrice,
-              itemId: item.itemId,
-              seller: item.seller,
-              name: metadata.name,
-              description: metadata.description,
-              image: metadata.image,
-            });
-          }
+          setItems({
+            totalPrice,
+            itemId: item.itemId,
+            seller: item.seller,
+            name: metadata.name,
+            description: metadata.description,
+            image: metadata.image,
+          });
         }
       }
     }

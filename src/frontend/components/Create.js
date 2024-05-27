@@ -11,6 +11,7 @@ const Create = () => {
 
   const uploadToIPFS = async (event) => {
     event.preventDefault();
+    const file = event.target.file[0];
   };
 
   return (
