@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 
+const projectId = process.env.REACT_APP_PROJECT_ID;
+const projectAPIKey = process.env.REACT_APP_API_KEY;
+
 const Create = () => {
   const [image, setImage] = useState("");
   const [price, setPrice] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-
-  const projectId = process.env.REACT_APP_PROJECT_ID;
-  const projectAPIKey = process.env.REACT_APP_API_KEY;
 
   const authorization = "Basic " + btoa(projectId + ":" + projectAPIKey);
   const ipfs = ipfsHttpClient({
