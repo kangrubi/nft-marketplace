@@ -17,27 +17,30 @@ const Home = () => {
       const item = await marketplace.items(i);
 
       if (!item.sold) {
-        const uri = await nft.tokenURI(item.tokenURI);
-
+        const tokenId = item.tokenId;
+        const uri = await nft.tokenURI(tokenId);
         const response = await axios.get(uri);
+
+        console.log(response.data);
 
         if (response.data) {
           const metadata = response.data;
 
           const totalPrice = await marketplace.getTotalPrice(item.itemId);
 
-          setItems({
-            totalPrice,
-            itemId: item.itemId,
-            seller: item.seller,
-            name: metadata.name,
-            description: metadata.description,
-            image: metadata.image,
-          });
+          setItems([
+            {
+              totalPrice: totalPrice.toString(),
+              itemId: item.itemId.toString(),
+              seller: item.seller.toString(),
+              name: metadata.name,
+              description: metadata.description,
+              image: metadata.image,
+            },
+          ]);
         }
       }
     }
-
     setLoading(false);
   };
 
@@ -45,6 +48,8 @@ const Home = () => {
     await (
       await marketplace.purchaseItem(item.itemId, { value: item.totalPrice })
     ).wait();
+
+    loadMarketplaceItems();
   };
 
   useEffect(() => {
