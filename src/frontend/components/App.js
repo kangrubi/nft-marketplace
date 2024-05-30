@@ -103,6 +103,7 @@ function App() {
           context={{
             marketplace,
             nft,
+            account,
           }}
         />
       )}
