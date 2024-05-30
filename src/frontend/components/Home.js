@@ -56,6 +56,13 @@ const Home = () => {
     loadMarketplaceItems();
   }, []);
 
+  if (loading)
+    return (
+      <main style={{ padding: "1rem 0" }}>
+        <h2>Loading...</h2>
+      </main>
+    );
+
   return (
     <div>
       {items.length > 0 ? (
