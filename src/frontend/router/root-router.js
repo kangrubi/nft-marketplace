@@ -4,6 +4,7 @@ import Home from "../components/Home";
 import App from "../components/App";
 import Create from "../components/Create";
 import MyListedItems from "../components/MyListedItems";
+import MyPurchases from "../components/MyPurchases";
 
 export const rootRouter = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const rootRouter = createBrowserRouter([
       {
         path: "/my-listed-items",
         element: <MyListedItems />,
+      },
+      {
+        path: "/my-purchases",
+        element: <MyPurchases />,
       },
     ],
   },
