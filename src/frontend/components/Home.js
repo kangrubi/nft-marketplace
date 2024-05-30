@@ -19,9 +19,8 @@ const Home = () => {
       if (!item.sold) {
         const tokenId = item.tokenId;
         const uri = await nft.tokenURI(tokenId);
-        const response = await axios.get(uri);
 
-        console.log(response.data);
+        const response = await axios.get(uri);
 
         if (response.data) {
           const metadata = response.data;
