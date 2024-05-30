@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Home from "../components/Home";
 import App from "../components/App";
 import Create from "../components/Create";
+import MyListedItems from "../components/MyListedItems";
 
 export const rootRouter = createBrowserRouter([
   {
@@ -14,8 +15,12 @@ export const rootRouter = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/Create",
+        path: "/create",
         element: <Create />,
+      },
+      {
+        path: "/my-listed-items",
+        element: <MyListedItems />,
       },
     ],
   },
