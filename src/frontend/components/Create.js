@@ -1,67 +1,90 @@
 import React, { useState } from "react";
-import { create as ipfsHttpClient } from "ipfs-http-client";
 import { useOutletContext } from "react-router-dom";
 import { ethers } from "ethers";
 import { Row, Form, Button } from "react-bootstrap";
+import axios from "axios";
 
-const projectId = process.env.REACT_APP_PROJECT_ID;
-const projectAPIKey = process.env.REACT_APP_API_KEY;
-const client = "https://ipfs.infura.io:5001/api/v0";
+const PINATA_JWT = process.env.REACT_APP_PINATA_JWT;
+const PINATA_URL = process.env.REACT_APP_PINATA_URL;
 
 const Create = () => {
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
   const [price, setPrice] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  const { marketplace, nft } = useOutletContext;
-
-  const authorization = "Basic " + btoa(projectId + ":" + projectAPIKey);
-  const ipfs = ipfsHttpClient({
-    url: client,
-    headers: {
-      authorization,
-    },
-  });
+  const { marketplace, nft } = useOutletContext();
 
   const uploadToIPFS = async (event) => {
     event.preventDefault();
-    const file = event.target.file[0];
-    if (typeof file !== "undefined") {
-      try {
-        const result = await ipfs.add(file);
-        console.log(result);
-        setImage(`https://ipfs.infura.io/ipfs/${result.path}`);
-      } catch (error) {
-        console.log("ipfs image upload error", error);
-      }
-    }
-  };
+    const file = event.target.files[0];
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-  const mintThenList = async (result) => {
-    const uri = `https://ipfs.infura.io/ipfs/${result.path}`;
-    // mint nft
-    await (await nft.mint(uri)).wait();
-    // get tokenId of new nft
-    const id = await nft.tokenCount();
-    //마켓플레이스가 NFT를 사용하도록 승인
-    await (await nft.setApprovalForALl(marketplace.address, true)).wait();
-    // 마켓플레이스에 NFT 추가
-    const listingPrice = ethers.utils.parseEther(price.toString());
-    await (await marketplace.makeItem(nft.address, id, listingPrice)).wait();
+      const res = await axios.post(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        formData,
+        {
+          maxBodyLength: "Infinity",
+          headers: {
+            "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
+            Authorization: `Bearer ${PINATA_JWT}`,
+          },
+        }
+      );
+      const imageURL = `${PINATA_URL}/ipfs/${res.data.IpfsHash}`;
+      setImage(imageURL);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const createNFT = async () => {
     if (!image || !price || !name || !description) return;
 
+    const data = JSON.stringify({
+      pinataContent: {
+        name,
+        description,
+        price,
+        image: image,
+      },
+      pinataMetadata: {
+        name: `${name}.json`,
+      },
+    });
+
     try {
-      const result = await ipfs.add(
-        JSON.stringify({ image, name, description })
+      const res = await axios.post(
+        `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${PINATA_JWT}`,
+          },
+        }
       );
-      mintThenList(result);
+
+      const tokenURI = `${PINATA_URL}/ipfs/${res.data.IpfsHash}`;
+      await mintThenList(tokenURI);
     } catch (error) {
-      console.log("ipfs uri upload error", error);
+      console.log(error);
     }
+  };
+
+  const mintThenList = async (metadata) => {
+    const uri = metadata;
+    // mint nft
+    await (await nft.mint(uri)).wait();
+    // get tokenId of new nft
+    const id = await nft.tokenCount();
+    // 마켓플레이스가 NFT를 사용하도록 승인
+    await (await nft.setApprovalForAll(marketplace.address, true)).wait();
+    // 마켓플레이스에 NFT 추가
+    const listingPrice = ethers.utils.parseEther(price.toString());
+    await (await marketplace.makeItem(nft.address, id, listingPrice)).wait();
   };
 
   return (
